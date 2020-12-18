@@ -63,7 +63,16 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
-    await guild.owner.send('Привет, я украшу твой сервер! :partying_face:')
+    await guild.owner.send('Привет! :partying_face:')
+    embed=discord.Embed(title="Инструкция", url="https://github.com/Shandeika/christmas-tree-in-discord/tree/main#инструкция-по-началу-преображения-сервера", description="Можешь нажать ссылку выше и ты попадешь на репозиторий github с инструкцией", color=0x000000)
+    embed.set_author(name="Shandy", url="https://vk.com/shandeika", icon_url="https://images-ext-1.discordapp.net/external/Nifqk3jVLvmFBCoVz1hauEOemI9X2MJPAGByFf5xpBk/%3Fsize%3D512/https/cdn.discordapp.com/avatars/335464992079872000/9c00b41b1efbc4fd02dce40ff5469bc0.png")
+    embed.add_field(name="Изменения", value="1. Перед и после ника стоит 🎄\n2. Перед и после названия сервера стоит 🎄", inline=False)
+    embed.add_field(name="Если вы готовы, то для начала процесса необходимо ввести", value="`.start`", inline=True)
+    embed.add_field(name="Для отмены всех действий нужно ввести", value="`.reset`", inline=True)
+    embed.add_field(name="ОЧЕНЬ ВАЖНО!\nРазмести роль бота выше всех!", value="Иначе он не сможет изменять ники", inline=True)
+    embed.set_footer(text="Copyright © 2019–2020 Shandy developer agency All Rights Reserved. © 2020")
+    await guild.owner.send(embed=embed)
+
 
 
 @bot.command(aliases=['помощь'])
