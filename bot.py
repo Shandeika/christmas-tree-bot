@@ -10,10 +10,12 @@ bot = commands.Bot(command_prefix=config["Config"]["prefix"], intents=discord.In
 #удаление стандартной команды help 
 bot.remove_command('help')
 
-#class NewYear:
-
-#async def __init__(self, guild):
-#    self.guild = guild
+@bot.event
+async def on_command_error(ctx, exception): # для команд
+    embed=discord.Embed(title=":x: Ошибка!", description=f'{exception}', color=0xff0000)
+    embed.set_footer(text="Copyright © 2019–2020 Shandy developer agency All Rights Reserved. © 2020")
+    await ctx.channel.send(embed = embed, delete_after=60)
+    print(exception)
 
 async def ny_start(guild):
     #изменение названия сервера
