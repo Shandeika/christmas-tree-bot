@@ -10,10 +10,17 @@ bot = commands.Bot(command_prefix=config["Config"]["prefix"], intents=discord.In
 #удаление стандартной команды help 
 bot.remove_command('help')
 
+#class NewYear:
+
+#async def __init__(self, guild):
+#    self.guild = guild
+
 @bot.event
 async def on_command_error(ctx, exception): # для команд
+#начало Ошибка
     embed=discord.Embed(title=":x: Ошибка!", description=f'{exception}', color=0xff0000)
     embed.set_footer(text="Copyright © 2019–2020 Shandy developer agency All Rights Reserved. © 2020")
+#конец
     await ctx.channel.send(embed = embed, delete_after=60)
     print(exception)
 
@@ -23,14 +30,21 @@ async def ny_start(guild):
     guild_name = guild_name_raw.replace("🎄","")
     await guild.edit(name=f'🎄{guild_name}🎄')
     members = guild.members
+    for role_raw in guild.roles:
+        #если вы используете своего бота, то тут нужно изменить название роли
+        if role_raw.name == 'christmas tree':
+            role = role_raw
     #перебор участников и установка ника
     for member in members:
-        if member != guild.owner:
-            raw_name:str = member.display_name
-            name = raw_name.replace("🎄","")
-            await member.edit(nick=f'🎄{name}🎄', reason='Новый год 🎄')
+        if member.top_role.position < role.position:
+            if member != guild.owner:
+                raw_name:str = member.display_name
+                name = raw_name.replace("🎄","")
+                await member.edit(nick=f'🎄{name}🎄', reason='Новый год 🎄')
+            else:
+                await guild.owner.send('Ник установи сам ;)')
         else:
-            await guild.owner.send('Ник установи сам ;)')
+            print(member.name,'не получит елочку :(')
     #назначение прав для канала
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(connect=False),
@@ -45,13 +59,20 @@ async def ny_reset(guild):
     guild_name = guild.name
     await guild.edit(name=guild_name.replace("🎄",""))
     members = guild.members
-    #перебор участников и сброс ника
+    for role_raw in guild.roles:
+        #если вы используете своего бота, то тут нужно изменить название роли
+        if role_raw.name == 'christmas tree':
+            role = role_raw
+    #перебор участников и установка ника
     for member in members:
-        if member != guild.owner:
-            name:str = member.display_name
-            await member.edit(nick=name.replace("🎄",""), reason='Конец нового года')
+        if member.top_role.position < role.position:
+            if member != guild.owner:
+                name:str = member.display_name
+                await member.edit(nick=name.replace("🎄",""), reason='Конец нового года')
+            else:
+                await guild.owner.send('Сбрось ник сам ;)')
         else:
-            await guild.owner.send('Сбрось ник сам ;)')
+            print(member.name,'не удалось сбросить ник')
     #удаление канала "Новый год 🎄"
     for voice in guild.voice_channels:
         if voice.name == 'Новый год 🎄':
