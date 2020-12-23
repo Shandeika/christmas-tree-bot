@@ -1,6 +1,7 @@
 import configparser
 import discord
 import requests
+import asyncio
 from discord.ext import commands
 
 config = configparser.ConfigParser()
@@ -9,11 +10,6 @@ config.read("config.ini", encoding='utf-8')
 bot = commands.Bot(command_prefix=config["Config"]["prefix"], intents=discord.Intents.all())
 #удаление стандартной команды help 
 bot.remove_command('help')
-
-#class NewYear:
-
-#async def __init__(self, guild):
-#    self.guild = guild
 
 @bot.event
 async def on_command_error(ctx, exception): # для команд
@@ -45,6 +41,7 @@ async def ny_start(guild):
                 await guild.owner.send('Ник установи сам ;)')
         else:
             print(member.name,'не получит елочку :(')
+        await asyncio.sleep(1)
     #назначение прав для канала
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(connect=False),
@@ -73,6 +70,7 @@ async def ny_reset(guild):
                 await guild.owner.send('Сбрось ник сам ;)')
         else:
             print(member.name,'не удалось сбросить ник')
+        await asyncio.sleep(1)
     #удаление канала "Новый год 🎄"
     for voice in guild.voice_channels:
         if voice.name == 'Новый год 🎄':
