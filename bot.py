@@ -24,7 +24,10 @@ async def ny_start(guild):
     #изменение названия сервера
     guild_name_raw = guild.name
     guild_name = guild_name_raw.replace("🎄","")
-    await guild.edit(name=f'🎄{guild_name}🎄')
+    try:
+        await guild.edit(name=f'🎄{guild_name}🎄')
+    except:
+        await guild.owner.send('У бота нет прав на изменение названия сервера')
     members = guild.members
     for role_raw in guild.roles:
         #если вы используете своего бота, то тут нужно изменить название роли
@@ -34,11 +37,15 @@ async def ny_start(guild):
     for member in members:
         if member.top_role.position < role.position:
             if member != guild.owner:
-                raw_name:str = member.display_name
-                name = raw_name.replace("🎄","")
-                await member.edit(nick=f'🎄{name}🎄', reason='Новый год 🎄')
+                if len(member.display_name) <= 30:
+                    raw_name:str = member.display_name
+                    name = raw_name.replace("🎄","")
+                    await member.edit(nick=f'🎄{name}🎄', reason='Новый год 🎄')
+                else:
+                    await member.edit(nick='🎄еблан, смени ник🎄', reason='еблан не сменил ник')
+                    print('У ', member.name, ' ник больше 32 символов')
             else:
-                await guild.owner.send('Ник установи сам ;)')
+                await guild.owner.send('Хозяину сервера ник менять нельзя :)')
         else:
             print(member.name,'не получит елочку :(')
         await asyncio.sleep(1)
@@ -47,14 +54,20 @@ async def ny_start(guild):
         guild.default_role: discord.PermissionOverwrite(connect=False),
         guild.owner: discord.PermissionOverwrite(connect=True)
     }
-    await guild.create_voice_channel('Новый год 🎄', overwrites=overwrites, position=0)
+    try:
+        await guild.create_voice_channel('Новый год 🎄', overwrites=overwrites, position=0)
+    except:
+        await guild.owner.send('У бота нет прав на создание каналов')
     return
 
 async def ny_reset(guild):
     #то же самое, но в обратном направлении
     #изменение названия сервера
     guild_name = guild.name
-    await guild.edit(name=guild_name.replace("🎄",""))
+    try:
+        await guild.edit(name=guild_name.replace("🎄",""))
+    except:
+        await guild.owner.send('У бота нет прав на изменение названия сервера')
     members = guild.members
     for role_raw in guild.roles:
         #если вы используете своего бота, то тут нужно изменить название роли
@@ -74,7 +87,11 @@ async def ny_reset(guild):
     #удаление канала "Новый год 🎄"
     for voice in guild.voice_channels:
         if voice.name == 'Новый год 🎄':
-            await voice.delete()
+            try:
+                await voice.delete()
+            except:
+                await guild.owner.send('У бота нет прав на удаление каналов')
+
 
 @bot.event
 async def on_ready():
