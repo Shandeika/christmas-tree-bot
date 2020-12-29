@@ -20,6 +20,19 @@ async def on_command_error(ctx, exception): # для команд
     await ctx.channel.send(embed = embed, delete_after=60)
     print(exception)
 
+async def found_bot_role(guild):
+    for role_raw in guild.roles:
+        #если вы используете своего бота, то тут нужно изменить название роли
+        if role_raw.name == 'christmas tree':
+            role = role_raw
+    return role
+
+async def found_logs(guild):
+    for channel_raw in guild.text_channels:
+        if channel.position == 0:
+            channel = channel_raw
+    return channel
+
 async def ny_start(guild):
     #изменение названия сервера
     guild_name_raw = guild.name
@@ -29,10 +42,7 @@ async def ny_start(guild):
     except:
         await guild.owner.send('У бота нет прав на изменение названия сервера')
     members = guild.members
-    for role_raw in guild.roles:
-        #если вы используете своего бота, то тут нужно изменить название роли
-        if role_raw.name == 'christmas tree':
-            role = role_raw
+    role = found_bot_role(guild)
     #перебор участников и установка ника
     for member in members:
         if member.top_role.position < role.position:
@@ -45,7 +55,7 @@ async def ny_start(guild):
                     await member.edit(nick='🎄еблан, смени ник🎄', reason='еблан не сменил ник')
                     print('У ', member.name, ' ник больше 32 символов')
             else:
-                await guild.owner.send('Хозяину сервера ник менять нельзя :)')
+                await guild.owner.send('Создателю сервера ник менять нельзя :)')
         else:
             print(member.name,'не получит елочку :(')
         await asyncio.sleep(1)
@@ -80,7 +90,7 @@ async def ny_reset(guild):
                 name:str = member.display_name
                 await member.edit(nick=name.replace("🎄",""), reason='Конец нового года')
             else:
-                await guild.owner.send('Сбрось ник сам ;)')
+                await guild.owner.send('Не могу сбросить ник создателю сервера')
         else:
             print(member.name,'не удалось сбросить ник')
         await asyncio.sleep(1)
@@ -110,6 +120,11 @@ async def on_guild_join(guild):
     embed.add_field(name="ОЧЕНЬ ВАЖНО!\nРазмести роль бота выше всех!", value="Иначе он не сможет изменять ники", inline=True)
     embed.set_footer(text="Copyright © 2019–2020 Shandy developer agency All Rights Reserved. © 2020")
     await guild.owner.send(embed=embed)
+    channel = await found_logs(guild)
+    try:
+        await channel.send(embed=embed)
+    except:
+        print('Не могу отправить сообщение на сервере', guild.name)
 
 
 
@@ -125,17 +140,31 @@ async def help(ctx):
 @bot.command(aliases=['старт'])
 @commands.has_guild_permissions(administrator=True)
 async def start(ctx):
-    await ctx.message.delete()
+    try:
+        await ctx.message.delete()
+    except:
+        await ctx.channel.send('Нет прав на удаление сообщений')
+    bot_role = found_bot_role(ctx.guild)
+    log_channel = found_logs(ctx.guild)
+    if bot_role.position == 0:
+        await log_channel.send(f'Роль бота находится в самом низу, переместите ее выше!\n{ctx.guild.owner.mention}')
     await ctx.channel.send('Запущен процесс "новогодизации" сервера, ожидайте, пожалуйста.\nЭтот процесс может длиться достаточно долго.', delete_after=30)
     await ny_start(ctx.guild)
-    await ctx.channel.send('Успешно!', delete_after=30)
+    await ctx.channel.send(f'Успешно! {ctx.guild.owner.mention}')
 
 @bot.command(aliases=['сброс'])
 @commands.has_guild_permissions(administrator=True)
 async def reset(ctx):
-    await ctx.message.delete()
+    try:
+        await ctx.message.delete()
+    except:
+        await ctx.channel.send('Нет прав на удаление сообщений')
+    bot_role = found_bot_role(ctx.guild)
+    log_channel = found_logs(ctx.guild)
+    if bot_role.position == 0:
+        await log_channel.send(f'Роль бота находится в самом низу, переместите ее выше!\n{ctx.guild.owner.mention}')
     await ctx.channel.send('Запущен процесс сброса изменений, ожидайте, пожалуйста.\nЭтот процесс может длиться достаточно долго.', delete_after=30)
     await ny_reset(ctx.guild)
-    await ctx.channel.send('Успешно!', delete_after=30)
+    await ctx.channel.send(f'Успешно! {ctx.guild.owner.mention}')
 
 bot.run(config["Config"]["token"])
