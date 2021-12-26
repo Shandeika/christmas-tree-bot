@@ -1,6 +1,3 @@
-import configparser
-import discord
-import requests
 import asyncio
 import configparser
 import math
