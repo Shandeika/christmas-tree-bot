@@ -2,14 +2,18 @@ import configparser
 import discord
 import requests
 import asyncio
-from discord.ext import commands
+import configparser
+import math
+import os.path
+
+import dis_snek.errors
+from dis_snek import Snake, listen, Activity, ActivityType, slash_command, Embed, Intents, InteractionContext, \
+    Permissions
 
 config = configparser.ConfigParser()
 config.read("config.ini", encoding='utf-8')
 
-bot = commands.Bot(command_prefix=config["Config"]["prefix"], intents=discord.Intents.all())
-#удаление стандартной команды help 
-bot.remove_command('help')
+bot = Snake(default_prefix=config['Config']['prefix'], intents=Intents.ALL, sync_interactions=True)
 
 @bot.event
 async def on_command_error(ctx, exception): # для команд
@@ -92,12 +96,10 @@ async def ny_reset(guild):
             except:
                 await guild.owner.send('У бота нет прав на удаление каналов')
 
-
-@bot.event
+@listen()
 async def on_ready():
-    print("Запустился под", bot.user)
-    #установка статуста(Играет в {игра})
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=config["Config"]["activity"]))
+    print(f'Bot: {bot.user}')
+    await bot.change_presence(activity=Activity(type=ActivityType.PLAYING, name=config['Config']['activity']))
 
 @bot.event
 async def on_guild_join(guild):
@@ -130,12 +132,4 @@ async def start(ctx):
     await ny_start(ctx.guild)
     await ctx.channel.send('Успешно!', delete_after=30)
 
-@bot.command(aliases=['сброс'])
-@commands.has_guild_permissions(administrator=True)
-async def reset(ctx):
-    await ctx.message.delete()
-    await ctx.channel.send('Запущен процесс сброса изменений, ожидайте, пожалуйста.\nЭтот процесс может длиться достаточно долго.', delete_after=30)
-    await ny_reset(ctx.guild)
-    await ctx.channel.send('Успешно!', delete_after=30)
-
-bot.run(config["Config"]["token"])
+bot.start(config['Config']['token'])
