@@ -1,2 +1,2 @@
-dis-snek
+dis-snek>=4.5.0
 orjson
